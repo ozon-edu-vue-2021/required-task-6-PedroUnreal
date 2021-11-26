@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import VTooltipPlugin from 'v-tooltip'
-import { Directive } from '@/directives/detect-viewport';
+import { Directive } from './directives/detect-viewport';
 import VueVirtualScroller from 'vue-virtual-scroller'
 
 import 'v-tooltip/dist/v-tooltip.css'

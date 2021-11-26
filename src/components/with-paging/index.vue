@@ -5,7 +5,7 @@
     :current-page="currentPage"
     :static-paging="false"
 
-    @getPage="infGetPage"
+    @getPage="getPage" 
   >
     <oz-table-column prop="id" title="ID" />
     <oz-table-column prop="postId" title="Post ID" />

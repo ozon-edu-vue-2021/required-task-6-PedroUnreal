@@ -1,5 +1,12 @@
 <template>
-  <oz-table :rows="rows">
+  <oz-table 
+    :rows="rows"
+    :total-pages="100"
+    :current-page="currentPage"
+    :static-paging="true"
+
+    @getPage="getPage"
+  >
     <oz-table-column prop="id" title="ID" />
     <oz-table-column prop="postId" title="Post ID" />
 
@@ -27,14 +34,30 @@ export default {
     OzTableColumn,
     OzTable
   },
-  async created() {
-    const res = await fetch(`https://jsonplaceholder.typicode.com/comments`);
-    this.rows = await res.json();
+  created() {
+    this.blockingPromise = this.getPage(1);
   },
   data() {
     return {
-      rows: []
+      rows: [],
+      currentPage: 1
     };
+  },
+  methods: {
+    async getPage(number) {
+      const res = await fetch(`https://jsonplaceholder.typicode.com/comments?postId=${number}`);
+      this.rows = await res.json();
+      this.currentPage = number;
+    },
+    async infGetPage() {
+      console.log('infGetPage');
+      this.blockingPromise && await this.blockingPromise;
+      const res = await fetch(`https://jsonplaceholder.typicode.com/comments?postId=${this.currentPage + 1}`);
+      const newRows = await res.json();
+      this.rows = [...this.rows, ...newRows];
+      this.currentPage++;
+      console.log(newRows);
+    }
   }
 };
 </script>
