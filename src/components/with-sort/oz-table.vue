@@ -24,7 +24,7 @@ export default {
     sortedRows() {
       let res;
 
-      if (!this.sortProp) {
+      if (this.sortProps.length===0) {
         res =  this.rows;
       }
 
@@ -49,7 +49,7 @@ export default {
       console.log(res);
 
       return res;
-    }
+    },
   },
   methods: {
     toggleSort(prop) {
@@ -60,6 +60,14 @@ export default {
       this.sortDirections.push(this.sortDirection)
        
       } else {this.sortDirections[foundIndex] === 'desc' ? this.sortDirections.splice([foundIndex],1, 'asc') : this.sortDirections.splice([foundIndex],1, 'desc')}
+    },
+
+    toDefaultSort(prop){
+      console.log(prop);
+      let index =this.sortProps.findIndex(item => item === prop)
+      console.log(index);
+      this.sortProps.splice(index,1)
+      this.sortDirections.splice(index,1)
     },
     openFilterTooltip(prop = '') {
       
@@ -94,15 +102,18 @@ export default {
        
     },
     renderHead(h, columnsOptions) {
-      const { $style, sortProp, sortDirection, allSelectedFilters, } = this;
+      const { $style, sortProps, sortDirections, allSelectedFilters, } = this;
 
       return columnsOptions.map((column) => {
         const renderedTitle = column.scopedSlots.title ? column.scopedSlots.title() : column.title;
         let sortIcon = 'sort';
 
-        if (sortProp === column.prop) {
-          sortIcon = sortDirection === 'asc' ? 'sort-amount-down' : 'sort-amount-up';
+        if (sortProps.findIndex(item => item === column.prop) > -1) {
+          sortIcon = sortDirections[sortProps.findIndex(item => item === column.prop)] === 'asc' ? 'sort-amount-down' : 'sort-amount-up';
         }
+        let isHidden
+        if (this.sortProps.findIndex(item => item === column.prop ) === -1){
+         isHidden = true} else { isHidden = false}
 
         return (
           <th key={column.prop} class={$style.headerCell}>
@@ -113,6 +124,13 @@ export default {
                 icon={sortIcon}
                 on={{ click: () => this.toggleSort(column.prop) }}
               />
+              <div class="close-button" hidden={isHidden}>
+              <font-awesome-icon
+                icon="times"
+               
+               on={{ click: () => this.toDefaultSort(column.prop) }}
+              />
+              </div>
               <FilterDropdown
                 columnProp={column.prop}
                 shown={allSelectedFilters.findIndex(item => item.prop === column.prop ) !== -1 }
@@ -201,5 +219,8 @@ export default {
 
 .sortIcon:hover {
   cursor: pointer;
+}
+.close-button {
+  margin-left: -18px
 }
 </style>
