@@ -3,9 +3,9 @@
     :rows="rows"
     :total-pages="100"
     :current-page="currentPage"
-    :static-paging="false"
-
-    @getPage="getPage" 
+    :static-paging="changePaging"
+    @getPage="getPage"
+    @infGetPage="infGetPage"
   >
     <oz-table-column prop="id" title="ID" />
     <oz-table-column prop="postId" title="Post ID" />
@@ -25,38 +25,47 @@
 </template>
 
 <script>
-import OzTable from './oz-table';
-import OzTableColumn from './oz-table-column';
+import OzTable from "./oz-table";
+import OzTableColumn from "./oz-table-column";
 
 export default {
-  name: 'PagingWrapper',
+  name: "SortWrapper",
   components: {
     OzTableColumn,
-    OzTable
+    OzTable,
   },
+  props: ["changePaging"],
   created() {
     this.blockingPromise = this.getPage(1);
   },
   data() {
     return {
       rows: [],
-      currentPage: 1
+      currentPage: 1,
     };
   },
   methods: {
     async getPage(number) {
-      const res = await fetch(`https://jsonplaceholder.typicode.com/comments?postId=${number}`);
+      console.log("getPage");
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/comments?postId=${number}`
+      );
       this.rows = await res.json();
       this.currentPage = number;
     },
     async infGetPage() {
-      this.blockingPromise && await this.blockingPromise;
-      const res = await fetch(`https://jsonplaceholder.typicode.com/comments?postId=${this.currentPage + 1}`);
+      console.log("infGetPage");
+      this.blockingPromise && (await this.blockingPromise);
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/comments?postId=${
+          this.currentPage + 1
+        }`
+      );
       const newRows = await res.json();
       this.rows = [...this.rows, ...newRows];
       this.currentPage++;
       console.log(newRows);
-    }
-  }
+    },
+  },
 };
 </script>

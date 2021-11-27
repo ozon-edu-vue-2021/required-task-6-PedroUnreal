@@ -192,7 +192,8 @@ export default {
         {
           name: 'detect-viewport',
           value: {
-            callback: this.$listeners.getPage
+            callback: this.$listeners.infGetPage,
+            threshold: 0.5
           }
         }
       ];
@@ -223,7 +224,7 @@ export default {
 
     {staticPaging
           ? <OzTablePaginator totalPages={totalPages} currentPage={currentPage} on={{ getPage: getPage }} />
-          : this.renderInfPager()
+          : this.renderInfPager() 
         }
       </div>
     );
@@ -242,6 +243,7 @@ export default {
   text-align: left;
   border-bottom: 1px solid #c8cacc;
   padding: 1rem 1rem;
+  min-height: 10%;
 }
 
 .headerCell {
@@ -263,6 +265,6 @@ export default {
   cursor: pointer;
 }
 .close-button {
-  margin-left: -18px
+  margin-left: -18px;
 }
 </style>
