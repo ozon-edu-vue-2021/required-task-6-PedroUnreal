@@ -1,5 +1,4 @@
 <script lang="jsx">
-import { orderBy } from 'lodash/collection';
 import FilterDropdown from './filter-dropdown';
 import OzTablePaginator from './oz-table-paginator.vue';
 import DotsLoaderIcon from './dost-loader.svg';
@@ -31,42 +30,21 @@ export default {
       sortProps: [],
       sortDirections: [],
       allSelectedFilters: [],
-      currentProp: ""
+      currentProp: "",
+      currentUrl: "",
+      currentFilterUrl: ""
     };
   },
   computed: {
     sortedRows() {
-      let res;
-
-      if (this.sortProps.length===0) {
-        res =  this.rows;
-      }
-
-      res = orderBy(this.rows, this.sortProps, this.sortDirections);
-
-      if( res) {
-        // res.forEach(row => (row[this.filterProp]) = String(row[this.filterProp]))
-        // res = res.filter(row => row[this.filterProp].search(this.filterText) > -1)
-        for (let index = 0; index < this.allSelectedFilters.length; index++) {
-          const selectedFilter = this.allSelectedFilters[index];
-          
-          res = res.filter(
-            row => hasSubstring(row[selectedFilter.prop], selectedFilter.text)
-          );
-        }
-      }
-
-      function hasSubstring(str, substr) {
-        return `${str}`.search(substr) > -1 ;
-      }
-
-      console.log(res);
-
+      let res =  this.rows;
       return res;
     },
   },
   methods: {
     toggleSort(prop) {
+      const { $listeners } = this;
+      const { getCurrentUrl, getPage} = $listeners;
       this.sortProp = prop;
       let foundIndex = this.sortProps.indexOf(this.sortProp);
       if(foundIndex === -1) {this.sortProps.push(this.sortProp)
@@ -74,14 +52,22 @@ export default {
       this.sortDirections.push(this.sortDirection)
        
       } else {this.sortDirections[foundIndex] === 'desc' ? this.sortDirections.splice([foundIndex],1, 'asc') : this.sortDirections.splice([foundIndex],1, 'desc')}
+     this.currentUrl = `&_sort=${[...this.sortProps]}&_order=${[...this.sortDirections]}`
+      getCurrentUrl(this.currentUrl)
+      if(!this.staticPaging){ getPage(1)} else {
+      getPage(this.currentPage)}
     },
 
     toDefaultSort(prop){
-      console.log(prop);
+      const { $listeners } = this;
+      const { getCurrentUrl, getPage} = $listeners;
       let index =this.sortProps.findIndex(item => item === prop)
-      console.log(index);
       this.sortProps.splice(index,1)
       this.sortDirections.splice(index,1)
+      this.currentUrl = ""
+      getCurrentUrl(this.currentUrl)
+      if(!this.staticPaging){ getPage(1)} else {
+      getPage(this.currentPage)}
     },
     openFilterTooltip(prop = '') {
       
@@ -93,14 +79,27 @@ export default {
     },
     setCurrentProp(prop){
       this.currentProp = prop;
+      this.currentFilterUrl = "";
+      const { $listeners } = this;
+      const { getCurrentFilterUrl, getPage} = $listeners;
+        for (let index = 0; index < this.allSelectedFilters.length; index++) {
+          
+        
+        this.currentFilterUrl = this.currentFilterUrl + `&${this.allSelectedFilters[index].prop}_like=${this.allSelectedFilters[index].text}`
+        }
+        getCurrentFilterUrl(this.currentFilterUrl)
+         if(this.staticPaging) {getPage(this.currentPage)} else {getPage(1);}
     },
     closeFilterTooltip(prop){
-      console.log(this.allSelectedFilters.findIndex((item) => item.prop === prop))
+      const { $listeners } = this;
+      const { getCurrentFilterUrl,  getPage } = $listeners;
+      this.currentFilterUrl = "";
       if (this.allSelectedFilters.findIndex((item) => item.prop === prop) > -1) { 
       
        this.allSelectedFilters.splice(this.allSelectedFilters.findIndex((item) => item.prop === prop), 1)
       }
-
+      getCurrentFilterUrl(this.currentFilterUrl ) 
+     if(!this.staticPaging) { getPage(1) }else {getPage(1)}
     },
     getAllSelectedFilters(e){
       let text = e.target.value;
@@ -217,6 +216,8 @@ export default {
 
     return (
       <div>
+      {staticPaging
+          ? <OzTablePaginator totalPages={totalPages} currentPage={currentPage} on={{ getPage: getPage }}  /> :""}
       <table class={$style.table}>
         <thead>{...columnsHead}</thead>
         <tbody>{...rows}</tbody>

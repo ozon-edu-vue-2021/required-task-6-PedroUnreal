@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import SortWrapper from "@/components/with-sort/index.vue";
+import SortWrapper from "@/components/table/index.vue";
 export default {
   name: "App",
   components: {
@@ -14,7 +14,7 @@ export default {
   },
   data() {
     return {
-      staticPaging: false,
+      staticPaging: true,
     };
   },
   methods: {
